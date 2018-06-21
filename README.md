@@ -6,7 +6,7 @@ Submerk is a tool written to run Subfinder, Amass, and then httpscreenshot to di
 Usage: chmod +x submerk.sh
 ./submerk.sh
 
-![Alt text](https://ibb.co/dAkuLT "Submerk")
+![Alt text](https://image.ibb.co/bUROEo/sub1.jpg "Submerk")
 *Screenshot host is in budcrowd bug bounty program.
 
-![Alt text](https://ibb.co/jSSPLT "Submerk")
+![Alt text](https://image.ibb.co/fDqdfT/sub2.jpg "Submerk")
