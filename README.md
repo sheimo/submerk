@@ -1,7 +1,7 @@
 
 Submerk
 =======
-Submerk is a tool written to run Subfinder, Amass, and then httpscreenshot to discover a organized list of subdomains with screenshots.
+Submerk is a tool written to run Subfinder, Amass, and then httpscreenshot to discover an organized list of subdomains with screenshots.
 
 Usage: ./submerk.sh
 
