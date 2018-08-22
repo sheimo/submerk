@@ -25,8 +25,8 @@ printf "
 			    Version:1.1\n\n"
 
 outdir="/tmp/submerk"
-subfinder="$GOPATH/subfinder"
-amass="$GOPATH/amass"
+subfinder="$GOPATH/bin/subfinder"
+amass="$GOPATH/bin/amass"
 httpscreenshot="/opt/httpscreenshot/httpscreenshot.py"
 cluster="/opt/httpscreenshot/screenshotClustering/cluster.py"
 
