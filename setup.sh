@@ -1,9 +1,9 @@
-#!/usr/bin/env sh
+#!/usr/bin/env bash
 echo "Just gonna install dependencies cause it's quick"
 echo "Proper installation relies on a correctly configured go environment..."
 sleep 3
 #Test for or get root.
-[ "$UID" -eq 0 ] || exec sudo sh "$0" "$@" || exit 1
+[ "$UID" -eq 0 ] || exec sudo bash "$0" "$@" || exit 1
 if ! command -v go &>/dev/null; then echo "Go could not be found. Install and configure that first."; exit 1; fi
 if [ -z $GOPATH ]; then echo "GOPATH not set. Fix it before continuing."; exit 2; fi
 echo '"Getting" amass...'
