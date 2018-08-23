@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 #-Metadata----------------------------------------------------#
 #  Filename: submerk.sh             (Update: 2018-06-21) #
 #-Info--------------------------------------------------------#
@@ -12,22 +12,8 @@
 #  MIT License ~ http://opensource.org/licenses/MIT           #
 #-------------------------------------------------------------#
 #
-#Future improvements - Check if exists if not download and install
-#
-echo "Just gonna install dependencies cause it's quick"
-#
-#amass - https://github.com/caffix/amass.git
-go get -u github.com/caffix/amass
-#
-#subfinder - https://github.com/Ice3man543/subfinder.git
-go get github.com/Ice3man543/subfinder
-#
-#http screenshot - https://github.com/breenmachine/httpscreenshot.git
-cd /opt
-git clone https://github.com/breenmachine/httpscreenshot.git > /dev/null && chmod +x /opt/httpscreenshot/install-dependencies.sh && /opt/httpscreenshot/install-dependencies.sh
-#
 #banner
-clear
+#clear
 printf "
  ____        _     __  __           _    
 / ___| _   _| |__ |  \/  | ___ _ __| | __
@@ -35,31 +21,41 @@ printf "
  ___) | |_| | |_) | |  | |  __| |  |   < 
 |____/ \__,_|_.__/|_|  |_|\___|_|  |_|\_\\
 
-			Created By: Sheimo
-			    Version:1.0\n\n"
+			Created By: Sheimo...L3vi47h4N helped too.
+			    Version:1.1\n\n"
 
-read -p 'Enter the Domain: ' DOMAINNAME
-mkdir /tmp/$DOMAINNAME
-mkdir /tmp/$DOMAINNAME/screenshots
-echo "[+] $DOMAINNAME Folder Created in /tmp/"
-echo "[+] Please way while SubFinder is running..."
+outdir="/tmp/submerk"
+subfinder="$GOPATH/bin/subfinder"
+amass="$GOPATH/bin/amass"
+httpscreenshot="/opt/httpscreenshot/httpscreenshot.py"
+cluster="/opt/httpscreenshot/screenshotClustering/cluster.py"
+
+# Check if we have everything.
+if [[ ! -f "$subfinder" || ! -f "$amass" || ! -f "$httpscreenshot" || ! -f "$cluster" ]]; then echo "A dependency is missing or not in the path expected. Did you run setup.sh?"; exit 1; fi
+
+# Parse the domain from first argument, otherwise, ask for it.
+if [ -z "$1" ]; then read -p 'Enter the Domain: ' domainname; else domainname="$1"; fi
+mkdir -p "$outdir/$domainname/screenshots"
+if [ ! -d "$outdir/$domainname/screenshots" ]; then echo "Unable to create output directory."; exit 1; fi
+echo "[+] $domainname Folder Created in $outdir"
+echo "[+] Please wait while SubFinder is running..."
 #status bar
-$HOME/go/bin/subfinder -d $DOMAINNAME -o /tmp/$DOMAINNAME/subfinder-$DOMAINNAME.txt > /dev/null
+$subfinder -d "$domainname" -o "$outdir/$domainname/subfinder-$domainname.txt" > /dev/null
 echo "[+] SubFinder Complete..."
 echo "[+] Now running Amass..."
 #status bar
-$HOME/go/bin/amass -d $DOMAINNAME -o /tmp/$DOMAINNAME/amass-$DOMAINNAME.txt > /dev/null
+$amass -d "$domainname" -o "$outdir/$domainname/amass-$domainname.txt" > /dev/null
 echo "[+] Amass Complete..."\n
-echo "[+] Now Combining and Sorting"
-cat /tmp/$DOMAINNAME/amass-$DOMAINNAME.txt /tmp/$DOMAINNAME/subfinder-$DOMAINNAME.txt > /tmp/$DOMAINNAME/$DOMAINNAME-unsorted.txt 
-sort -u /tmp/$DOMAINNAME/$DOMAINNAME-unsorted.txt > /tmp/$DOMAINNAME/$DOMAINNAME-final.txt
-rm /tmp/$DOMAINNAME/$DOMAINNAME-unsorted.txt
-cat /tmp/$DOMAINNAME/$DOMAINNAME-final.txt | awk {'print "https://" $0'} > /tmp/$DOMAINNAME/$DOMAINNAME-final2.txt
-cd /tmp/$DOMAINNAME/screenshots
-echo "[+] Creating screenshots"
-python /opt/httpscreenshot/httpscreenshot.py -l /tmp/$DOMAINNAME/$DOMAINNAME-final2.txt -p -w 10 -a -vH > /dev/null
+echo "[+] Now combining, sorting, and removing dupes..."
+cat "$outdir/$domainname/amass-$domainname.txt" "$outdir/$domainname/subfinder-$domainname.txt" > "$outdir/$domainname/$domainname-unsorted.txt"
+sort -u "$outdir/$domainname/$domainname-unsorted.txt" > "$outdir/$domainname/$domainname-submerkdomains.txt"
+rm "$outdir/$domainname/$domainname-unsorted.txt"
+awk {'print "https://" $0'} "$outdir/$domainname/$domainname-submerkdomains.txt" > "$outdir/$domainname/$domainname-submerkhttps.txt"
+cd "$outdir/$domainname/screenshots"
+echo "[+] Creating screenshots..."
+python $httpscreenshot -l "$outdir/$domainname/$domainname-submerkhttps.txt" -p -w 10 -a -vH > /dev/null
 #open final cluster webpage
-python /opt/httpscreenshot/screenshotClustering/cluster.py -d /tmp/$DOMAINNAME/screenshots/ -o /tmp/$DOMAINNAME/final.html
-firefox /tmp/$DOMAINNAME/final.html > /dev/null &
+python $cluster -d "$outdir/$domainname/screenshots/" -o "$outdir/$domainname/screenshot-cluster.html"
+xdg-open "$outdir/$domainname/screenshot-cluster.html" > /dev/null &
 echo "[+] Browser is opening screenshot cluster"
 echo "[+] Done"
